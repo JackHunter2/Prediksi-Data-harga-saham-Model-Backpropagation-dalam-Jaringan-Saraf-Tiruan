@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Prediksi Harga Saham</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card p-4">
+                    <h3 class="text-center header-title mb-4">Prediksi Harga Saham TSLA</h3>
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="open" class="form-label">Harga Open</label>
+                            <input type="number" step="0.01" name="open" class="form-control" id="open" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="high" class="form-label">Harga High</label>
+                            <input type="number" step="0.01" name="high" class="form-control" id="high" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="low" class="form-label">Harga Low</label>
+                            <input type="number" step="0.01" name="low" class="form-control" id="low" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="volume" class="form-label">Volume</label>
+                            <input type="number" name="volume" class="form-control" id="volume" required>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Prediksi</button>
+                        </div>
+                    </form>
+
+                    {% if prediction %}
+                        <div class="result-box mt-4">
+                            <strong>Prediksi Harga Penutupan:</strong> ${{ prediction }}
+                        </div>
+
+                        <!-- Grafik -->
+                        <canvas id="priceChart" class="mt-4"></canvas>
+                        <script>
+                            const ctx = document.getElementById('priceChart').getContext('2d');
+                            const chart = new Chart(ctx, {
+                                type: 'bar',
+                                data: {
+                                    labels: ['Open', 'High', 'Low', 'Prediksi Close'],
+                                    datasets: [{
+                                        label: 'Harga ($)',
+                                        backgroundColor: ['#3498db', '#2ecc71', '#e67e22', '#9b59b6'],
+                                        data: [
+                                            {{ open }},
+                                            {{ high }},
+                                            {{ low }},
+                                            {{ prediction }}
+                                        ]
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    plugins: {
+                                        legend: { display: false },
+                                        tooltip: {
+                                            callbacks: {
+                                                label: function(context) {
+                                                    return '$' + context.parsed.y.toFixed(2);
+                                                }
+                                            }
+                                        }
+                                    },
+                                    scales: {
+                                        y: {
+                                            beginAtZero: false,
+                                            ticks: {
+                                                callback: function(value) {
+                                                    return '$' + value;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                        </script>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
